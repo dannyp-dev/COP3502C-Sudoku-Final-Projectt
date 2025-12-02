@@ -52,7 +52,7 @@ class SudokuGenerator:
 	Return: None
     '''
     def print_board(self):
-        print()
+        print(self.get_board())
 
     '''
 	Determines if num is contained in the specified row (horizontal) of the board
@@ -117,6 +117,14 @@ class SudokuGenerator:
     def is_valid(self, row, col, num):
         row_safe = self.valid_in_row(row, num)
         col_safe = self.valid_in_col(col, num)
+
+        box_row_start = (row // 3) * 3
+        box_col_start = (col // 3) * 3
+
+        box_safe = self.valid_in_box(box_row_start, box_col_start, num)
+
+        return row_safe and col_safe and box_safe
+
 
     '''
     Fills the specified 3x3 box with values
