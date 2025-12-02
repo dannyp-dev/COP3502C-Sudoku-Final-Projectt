@@ -26,6 +26,15 @@ class SudokuGenerator:
     def __init__(self, row_length, removed_cells):
         self.row_length = row_length
         self.removed_cells = removed_cells
+        self.box_length = int(row_length**0.5)
+
+        self.board = []
+        for i in range(self.row_length):
+            row = []
+            for j in range(self.row_length):
+                row.append(0)
+            self.board.append(row)
+
 
     '''
 	Returns a 2D python list of numbers which represents the board
@@ -34,14 +43,6 @@ class SudokuGenerator:
 	Return: list[list]
     '''
     def get_board(self):
-        board = []
-        for i in range(self.row_length):
-            row = []
-            for j in range(self.row_length):
-                row.append(0)
-            board.append(row)
-        self.board = board
-        print(self.board)
         return self.board
 
     '''
@@ -52,7 +53,8 @@ class SudokuGenerator:
 	Return: None
     '''
     def print_board(self):
-        print(self.get_board())
+        for row in self.board:
+            print(row)
 
     '''
 	Determines if num is contained in the specified row (horizontal) of the board
@@ -260,3 +262,18 @@ def generate_sudoku(size, removed):
     sudoku.remove_cells()
     board = sudoku.get_board()
     return board
+
+
+if __name__ == "__main__":
+    print("Generating a 9x9 Sudoku Board with 40 cells removed...")
+
+    # Generate the board using the standalone function
+    final_board = generate_sudoku(9, 40)
+
+    # Print the result
+    for row in final_board:
+        print(row)
+
+    # Verify the removal count
+    zero_count = sum(r.count(0) for r in final_board)
+    print(f"\nCells removed (Zeros): {zero_count}")
