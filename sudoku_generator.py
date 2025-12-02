@@ -1,4 +1,35 @@
 import math ,random
+import pygame
+pygame.init()
+
+
+
+
+
+class Cell:
+    def __init__(self, value, row, col, screen, sketched_value):
+        self.value = value
+        self.row = row
+        self.col = col
+        self.screen = screen
+        self.sketched_value = sketched_value
+    def set_cell_value(self, value):
+        self.value = value
+    def set_sketched_value(self, value):
+        self.sketched_value = value
+    def draw(self):
+        cellsize = 60
+        x = self.col * cellsize
+        y = self.row * cellsize
+        pygame.draw.rect(self.screen, (0,0,0), (x, y, cellsize, cellsize), 2)
+        if self.value != 0:
+            font = pygame.font.SysFont('comicsans', 30)
+            text = font.render(str(self.value), True, (0, 255, 0))
+            text_rect = text.get_rect(center = (x+cellsize//2, y+cellsize//2))
+            self.screen.blit(text, text_rect)
+
+
+
 
 """
 This was adapted from a GeeksforGeeks article "Program for Sudoku Generator" by Aarti_Rathi and Ankur Trisal
@@ -264,16 +295,3 @@ def generate_sudoku(size, removed):
     return board
 
 
-if __name__ == "__main__":
-    print("Generating a 9x9 Sudoku Board with 40 cells removed...")
-
-    # Generate the board using the standalone function
-    final_board = generate_sudoku(9, 40)
-
-    # Print the result
-    for row in final_board:
-        print(row)
-
-    # Verify the removal count
-    zero_count = sum(r.count(0) for r in final_board)
-    print(f"\nCells removed (Zeros): {zero_count}")
