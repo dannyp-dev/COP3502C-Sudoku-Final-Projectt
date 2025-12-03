@@ -133,9 +133,10 @@ class Board:
     def place_number(self, value):
         if self.selected_row is not None and self.selected_col is not None:
             cell = self.sudoku_board[self.selected_row][self.selected_col]
-            cell.set_cell_value(value)
-            cell.set_sketched_value(value)
-            self.update_board()
+            if cell.changeable:
+                cell.set_cell_value(value)
+                cell.set_sketched_value(0)
+                self.update_board()
 
     def reset_to_original(self):
         for i in range(9):
