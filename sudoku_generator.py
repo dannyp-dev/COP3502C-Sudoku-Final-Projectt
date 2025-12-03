@@ -103,6 +103,45 @@ class Board:
         self.selected_row = row
         self.selected_col = col
 
+    def click(self, x,y):
+        if x < 0 or y < 0  or x > self.width or y > self.height:
+            return None
+        row = int(y //self.square_size)
+        col = int(x //self.square_size)
+        return (row, col)
+    def sketch(self, value):
+        if self.selected_row is not None and self.selected_col is not None:
+            cell = self.sudoku_board[self.selected_row][self.selected_col]
+            cell.sketched_value = value
+
+    def place_number(self, value):
+        if self.selected_row is not None and self.selected_col is not None:
+            cell = self.sudoku_board[self.selected_row][self.selected_col]
+            cell.set_cell_value(value)
+            cell.set_sketched_value(value)
+
+    def reset_to_original(self):
+        pass
+
+    def is_full(self):
+        for row in range(9):
+            for col in range(9):
+                if self.sudoku_board[row][col].sketched_value == 0:
+                    return False
+
+        return True
+
+    def update_board(self):
+        pass
+
+    def find_empty(self):
+        for row in range(9):
+            for col in range(9):
+                if self.sudoku_board[row][col].sketched_value == 0:
+                    return (row, col)
+        return None
+
+
 
 
 
