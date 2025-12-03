@@ -471,11 +471,11 @@ if __name__ == "__main__":
                 running = False
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                #Get x and y position of mouse
+
                 pos = pygame.mouse.get_pos()
                 x, y = pos
 
-                #Convert pixels to row/col
+
                 row = int(y // 60)
                 col = int(x // 60)
 
