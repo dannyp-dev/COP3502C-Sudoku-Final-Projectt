@@ -134,13 +134,15 @@ class Board:
     def sketch(self, value):
         if self.selected_row is not None and self.selected_col is not None:
             cell = self.sudoku_board[self.selected_row][self.selected_col]
-            cell.sketched_value = value
+            if cell.changeable:
+                cell.set_sketched_value(value)
 
     def place_number(self, value):
         if self.selected_row is not None and self.selected_col is not None:
             cell = self.sudoku_board[self.selected_row][self.selected_col]
-            cell.set_cell_value(value)
-            cell.set_sketched_value(value)
+            if cell.changeable:
+                cell.set_cell_value(value)
+                cell.set_sketched_value(0)
 
     def reset_to_original(self):
         for i in range(9):
@@ -463,8 +465,8 @@ if __name__ == "__main__":
         screen.blit(background, (0, 0))
         screen.blit(Title, (65, 20))
         screen.blit(Title2, (65, 250))
+        board.draw()
         for event in pygame.event.get():
-            board.draw()
             if event.type == pygame.QUIT:
                 running = False
 
