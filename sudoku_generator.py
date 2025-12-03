@@ -1,4 +1,5 @@
-import math ,random
+import math
+import random
 import pygame
 pygame.init()
 
@@ -42,8 +43,34 @@ https://www.geeksforgeeks.org/program-sudoku-generator/
 
 """
 
+
+class Board:
+    def __init__(self, width, height, screen, difficulty):
+        self.width = width
+        self.height = height
+        self.screen = screen
+        self.difficulty = difficulty
+        self.selected = False
+
+    def draw(self):
+        self.screen.fill((255, 255, 255))
+        for i in range(0, 10):
+            if i % 3 == 0:
+                line_width = 4
+            else:
+                line_width = 1
+
+            #Horizontal Lines
+            pygame.draw.line(self.screen, (0, 0, 0), (0, i * self.square_size), (self.width, i * self.square_size), line_width)
+
+            # Vertical Lines
+            pygame.draw.line(self.screen, (0, 0, 0), (i * self.square_size, 0), (i * self.square_size, self.height), line_width)
+
+    def select(self, row, col):
+        pass
+
+
 class SudokuGenerator:
-    print()
     '''
 	create a sudoku board - initialize class variables and set up the 2D board
 	This should initialize:
@@ -275,7 +302,6 @@ class SudokuGenerator:
                 cells_rem -= 1
 
 
-
 '''
 DO NOT CHANGE
 Provided for students
@@ -300,3 +326,5 @@ def generate_sudoku(size, removed):
     return board
 
 
+if __name__ == "__main__":
+    print("Working")
