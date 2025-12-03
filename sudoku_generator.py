@@ -1,7 +1,6 @@
 import math
 import random
 import pygame
-import copy
 pygame.init()
 
 
@@ -16,7 +15,7 @@ class Cell:
         self.selected = False
         if self.value == 0:
             self.changeable = True
-        elif self.value in [1,2,3,4,5,6,7,8,9]:
+        else:
             self.changeable = False
 
     def set_cell_value(self, value):
@@ -26,7 +25,7 @@ class Cell:
         self.sketched_value = value
 
     def draw(self):
-        cellsize = 60
+        cellsize = self.screen.get_width() / 9
         x = self.col * cellsize
         y = self.row * cellsize
 
@@ -34,14 +33,12 @@ class Cell:
             outlinecolor = (255,0, 0)
         else:
             outlinecolor = (0,0, 0)
-        pygame.draw.rect(self.screen, outlinecolor, (x, y, cellsize, cellsize), 1)
+        pygame.draw.rect(self.screen, outlinecolor, (x, y, cellsize, cellsize), 2)
         if self.value != 0:
             font = pygame.font.SysFont('comicsans', 30)
             text = font.render(str(self.value), True, (0, 0, 0))
             text_rect = text.get_rect(center = (x+cellsize//2, y+cellsize//2))
             self.screen.blit(text, text_rect)
-
-
 
 
 """
@@ -57,7 +54,7 @@ class Board:
         self.height = height
         self.screen = screen
         self.difficulty = difficulty
-        self.square_size = width/9
+        self.square_size = width / 9
 
         removed_cells = 0
         if self.difficulty == "Easy":
@@ -67,15 +64,22 @@ class Board:
         elif self.difficulty == "Hard":
             removed_cells = 50
 
-        self.sudoku_board = generate_sudoku(9, removed_cells)
-        self.original_board = copy.deepcopy(self.sudoku_board)
-        self.current_board = copy.deepcopy(self.original_board)
-
+        self.sudoku_board, self.solution = generate_sudoku(9, removed_cells)
 
         self.selected_row = None
         self.selected_col = None
 
-        #cell(row)(col)
+        # Create ACTUAL data
+        self.board = []
+        for i in range(9):
+            row_data = []
+            for j in range(9):
+                value = self.sudoku_board[i][j]
+                row_data.append(value)
+            self.board.append(row_data)
+
+        # cell(row)(col)
+        # Create Visual Data
         for i in range(9):
             for j in range(9):
                 current_value = self.sudoku_board[i][j]
@@ -89,11 +93,13 @@ class Board:
             else:
                 line_width = 1
 
-            #Horizontal Lines
-            pygame.draw.line(self.screen, (0, 0, 0), (0, i * self.square_size), (self.width, i * self.square_size), line_width)
+            # Horizontal Lines
+            pygame.draw.line(self.screen, (0, 0, 0), (0, i * self.square_size), (self.width, i * self.square_size),
+                             line_width)
 
-            #Vertical Lines
-            pygame.draw.line(self.screen, (0, 0, 0), (i * self.square_size, 0), (i * self.square_size, self.height), line_width)
+            # Vertical Lines
+            pygame.draw.line(self.screen, (0, 0, 0), (i * self.square_size, 0), (i * self.square_size, self.height),
+                             line_width)
 
         for i in range(9):
             for j in range(9):
@@ -108,11 +114,11 @@ class Board:
         self.selected_row = row
         self.selected_col = col
 
-    def click(self, x,y):
-        if x < 0 or y < 0  or x > self.width or y > self.height:
+    def click(self, x, y):
+        if x < 0 or y < 0 or x > self.width or y > self.height:
             return None
-        row = int(y //self.square_size)
-        col = int(x //self.square_size)
+        row = int(y // self.square_size)
+        col = int(x // self.square_size)
         return (row, col)
 
     def clear(self):
@@ -133,22 +139,16 @@ class Board:
     def place_number(self, value):
         if self.selected_row is not None and self.selected_col is not None:
             cell = self.sudoku_board[self.selected_row][self.selected_col]
-            if cell.changeable:
-                cell.set_cell_value(value)
-                cell.set_sketched_value(0)
-                self.update_board()
+            cell.set_cell_value(value)
+            cell.set_sketched_value(value)
 
     def reset_to_original(self):
         for i in range(9):
             for j in range(9):
-                original_value = self.original_board[i][j]
                 cell = self.sudoku_board[i][j]
-
-                cell.set_cell_value(original_value)
-                cell.set_sketched_value(0)
-
-                cell.changeable = (original_value == 0)
-
+                if cell.changeable:
+                    cell.set_cell_value(0)
+                    cell.set_sketched_value(0)
 
     def is_full(self):
         for row in range(9):
@@ -158,10 +158,10 @@ class Board:
         return True
 
     def update_board(self):
-        for row in range(9):
-            for col in range(9):
-                value = self.sudoku_board[row][col].value
-                self.current_board[row][col] = value
+        for i in range(9):
+            for j in range(9):
+                cell_value = self.sudoku_board[i][j].value
+                self.board[i][j] = cell_value
 
     def find_empty(self):
         for row in range(9):
@@ -171,36 +171,11 @@ class Board:
         return None
 
     def check_board(self):
-        for row in range(9):
-            currentnums = []
-            for col in range(9):
-                value = self.sudoku_board[row][col].value
-                if value == 0 or value in currentnums:
+        for i in range(9):
+            for j in range(9):
+                if self.sudoku_board[i][j].value != self.solution[i][j]:
                     return False
-                currentnums.append(value)
-        for col in range(9):
-            currentnums = []
-            for row in range(9):
-                value = self.sudoku_board[row][col].value
-                if value == 0 or value in currentnums:
-                    return False
-                currentnums.append(value)
-        for box_row in range(0, 9, 3):
-            for box_col in range(0, 9, 3):
-                currentnums = []
-                for x in range(box_row, box_row + 3):
-                    for y in range(box_col, box_col + 3):
-                        value = self.sudoku_board[x][y].value
-                        if value == 0 or value in currentnums:
-                            return False
-                        currentnums.append(value)
-
-
-
         return True
-
-
-
 
 
 class SudokuGenerator:
@@ -219,10 +194,11 @@ class SudokuGenerator:
 	Return:
 	None
     '''
+
     def __init__(self, row_length, removed_cells):
         self.row_length = row_length
         self.removed_cells = removed_cells
-        self.box_length = int(row_length**0.5)
+        self.box_length = int(row_length ** 0.5)
         self.board = []
         for i in range(self.row_length):
             row = []
@@ -230,13 +206,13 @@ class SudokuGenerator:
                 row.append(0)
             self.board.append(row)
 
-
     '''
 	Returns a 2D python list of numbers which represents the board
 
 	Parameters: None
 	Return: list[list]
     '''
+
     def get_board(self):
         return self.board
 
@@ -247,6 +223,7 @@ class SudokuGenerator:
 	Parameters: None
 	Return: None
     '''
+
     def print_board(self):
         for row in self.board:
             print(row)
@@ -258,9 +235,10 @@ class SudokuGenerator:
 	Parameters:
 	row is the index of the row we are checking
 	num is the value we are looking for in the row
-	
+
 	Return: boolean
     '''
+
     def valid_in_row(self, row, num):
         for i in range(self.row_length):
             if self.board[row][i] == num:
@@ -276,6 +254,7 @@ class SudokuGenerator:
 	num is the value we are looking for in the column
 	Return: boolean
     '''
+
     def valid_in_col(self, col, num):
         for row in range(len(self.board)):
             if self.board[row][col] == num:
@@ -294,6 +273,7 @@ class SudokuGenerator:
 
 	Return: boolean
     '''
+
     def valid_in_box(self, row_start, col_start, num):
         for i in range(row_start, row_start + 3):
             for j in range(col_start, col_start + 3):
@@ -311,6 +291,7 @@ class SudokuGenerator:
 
 	Return: boolean
     '''
+
     def is_valid(self, row, col, num):
         row_safe = self.valid_in_row(row, num)
         col_safe = self.valid_in_col(col, num)
@@ -322,7 +303,6 @@ class SudokuGenerator:
 
         return row_safe and col_safe and box_safe
 
-
     '''
     Fills the specified 3x3 box with values
     For each position, generates a random digit which has not yet been used in the box
@@ -333,6 +313,7 @@ class SudokuGenerator:
 
 	Return: None
     '''
+
     def fill_box(self, row_start, col_start):
         num_storage = []
         for i in range(row_start, row_start + 3):
@@ -346,10 +327,6 @@ class SudokuGenerator:
                     else:
                         continue
 
-
-
-
-
     '''
     Fills the three boxes along the main diagonal of the board
     These are the boxes which start at (0,0), (3,3), and (6,6)
@@ -357,22 +334,24 @@ class SudokuGenerator:
 	Parameters: None
 	Return: None
     '''
+
     def fill_diagonal(self):
-        for i in range(0,7 ,3):
-            self.fill_box(i,i)
+        for i in range(0, 7, 3):
+            self.fill_box(i, i)
 
     '''
     DO NOT CHANGE
     Provided for students
     Fills the remaining cells of the board
     Should be called after the diagonal boxes have been filled
-	
+
 	Parameters:
 	row, col specify the coordinates of the first empty (0) cell
 
 	Return:
 	boolean (whether or not we could solve the board)
     '''
+
     def fill_remaining(self, row, col):
         if (col >= self.row_length and row < self.row_length - 1):
             row += 1
@@ -408,6 +387,7 @@ class SudokuGenerator:
 	Parameters: None
 	Return: None
     '''
+
     def fill_values(self):
         self.fill_diagonal()
         self.fill_remaining(0, self.box_length)
@@ -417,18 +397,19 @@ class SudokuGenerator:
     This is done by setting some values to 0
     Should be called after the entire solution has been constructed
     i.e. after fill_values has been called
-    
+
     NOTE: Be careful not to 'remove' the same cell multiple times
     i.e. if a cell is already 0, it cannot be removed again
 
 	Parameters: None
 	Return: None
     '''
+
     def remove_cells(self):
         cells_rem = self.removed_cells
         while cells_rem > 0:
-            random_col = random.randint(0,8)
-            random_row = random.randint(0,8)
+            random_col = random.randint(0, 8)
+            random_row = random.randint(0, 8)
             if self.board[random_row][random_col] != 0:
                 self.board[random_row][random_col] = 0
                 cells_rem -= 1
@@ -449,13 +430,22 @@ removed is the number of cells to clear (set to 0)
 
 Return: list[list] (a 2D Python list to represent the board)
 '''
+
+
 def generate_sudoku(size, removed):
     sudoku = SudokuGenerator(size, removed)
     sudoku.fill_values()
+    #Store solution to check user answers
+    solution = []
+    for row in sudoku.get_board():
+        row_copy = []
+        for num in row:
+            row_copy.append(num)
+        solution.append(row_copy)
     board = sudoku.get_board()
     sudoku.remove_cells()
     board = sudoku.get_board()
-    return board
+    return board, solution
 
 
 if __name__ == "__main__":
@@ -474,7 +464,6 @@ if __name__ == "__main__":
         screen.blit(background, (0, 0))
         screen.blit(Title, (65, 20))
         screen.blit(Title2, (65, 250))
-
         for event in pygame.event.get():
             board.draw()
             if event.type == pygame.QUIT:
@@ -513,8 +502,5 @@ if __name__ == "__main__":
                     board.place_number(9)
                 if event.key == pygame.K_BACKSPACE:
                     board.clear()
-
-
-
         pygame.display.update()
     pygame.quit()
