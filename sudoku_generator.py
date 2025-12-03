@@ -77,8 +77,6 @@ class Board:
                 current_value = self.sudoku_board[i][j]
                 self.sudoku_board[i][j] = Cell(current_value, i, j, screen)
 
-
-
     def draw(self):
         self.screen.fill((255, 255, 255))
         for i in range(0, 10):
@@ -112,6 +110,17 @@ class Board:
         row = int(y //self.square_size)
         col = int(x //self.square_size)
         return (row, col)
+
+    def clear(self):
+        if self.selected_row is None or self.selected_col is None:
+            return
+
+        cell = self.sudoku_board[self.selected_row][self.selected_col]
+
+        if cell.changeable:
+            cell.set_cell_value(0)
+            cell.set_sketched_value(0)
+
     def sketch(self, value):
         if self.selected_row is not None and self.selected_col is not None:
             cell = self.sudoku_board[self.selected_row][self.selected_col]
@@ -124,18 +133,22 @@ class Board:
             cell.set_sketched_value(value)
 
     def reset_to_original(self):
-        pass
+        for i in range(9):
+            for j in range(9):
+                cell = self.sudoku_board[i][j]
+                if cell.changeable:
+                    cell.set_cell_value(0)
+                    cell.set_sketched_value(0)
 
     def is_full(self):
         for row in range(9):
             for col in range(9):
                 if self.sudoku_board[row][col].sketched_value == 0:
                     return False
-
         return True
 
     def update_board(self):
-        pass
+        pass #Needs to finish
 
     def find_empty(self):
         for row in range(9):
@@ -144,25 +157,8 @@ class Board:
                     return (row, col)
         return None
 
-
-    def clear(self):
-        if self.selected_row is None or self.selected_col is None:
-            return
-
-        cell = self.sudoku_board[self.selected_row][self.selected_col]
-
-        if cell.changeable:
-            cell.set_cell_value(0)
-            cell.set_sketched_value(0)
-
-    def reset_to_original(self):
-        for i in range(9):
-            for j in range(9):
-                cell = self.sudoku_board[i][j]
-                if cell.changeable:
-                    cell.set_cell_value(0)
-                    cell.set_sketched_value(0)
-
+    def check_board(self):
+        pass #Needs to finish
 
 
 
