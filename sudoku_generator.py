@@ -13,6 +13,10 @@ class Cell:
         self.screen = screen
         self.sketched_value = 0
         self.selected = False
+        if self.value == 0:
+            self.changeable = True
+        elif self.value == "123456789":
+            self.changeable = False
 
     def set_cell_value(self, value):
         self.value = value
@@ -39,7 +43,6 @@ class Cell:
 
 
 
-
 """
 This was adapted from a GeeksforGeeks article "Program for Sudoku Generator" by Aarti_Rathi and Ankur Trisal
 https://www.geeksforgeeks.org/program-sudoku-generator/
@@ -53,7 +56,7 @@ class Board:
         self.height = height
         self.screen = screen
         self.difficulty = difficulty
-        self.square_size = width /9
+        self.square_size = width/9
 
         removed_cells = 0
         if self.difficulty == "Easy":
@@ -140,6 +143,26 @@ class Board:
                 if self.sudoku_board[row][col].sketched_value == 0:
                     return (row, col)
         return None
+
+
+    def clear(self):
+        if self.selected_row is None or self.selected_col is None:
+            return
+
+        cell = self.sudoku_board[self.selected_row][self.selected_col]
+
+        if cell.changeable:
+            cell.set_cell_value(0)
+            cell.set_sketched_value(0)
+
+    def reset_to_original(self):
+        for i in range(9):
+            for j in range(9):
+                cell = self.sudoku_board[i][j]
+                if cell.changeable:
+                    cell.set_cell_value(0)
+                    cell.set_sketched_value(0)
+
 
 
 
