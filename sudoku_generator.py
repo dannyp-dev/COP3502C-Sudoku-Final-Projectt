@@ -7,12 +7,13 @@ pygame.init()
 
 
 class Cell:
-    def __init__(self, value, row, col, screen, sketched_value):
+    def __init__(self, value, row, col, screen):
         self.value = value
         self.row = row
         self.col = col
         self.screen = screen
-        self.sketched_value = sketched_value
+        self.sketched_value = 0
+        self.selected = False
     def set_cell_value(self, value):
         self.value = value
     def set_sketched_value(self, value):
@@ -21,7 +22,11 @@ class Cell:
         cellsize = 60
         x = self.col * cellsize
         y = self.row * cellsize
-        pygame.draw.rect(self.screen, (0,0,0), (x, y, cellsize, cellsize), 2)
+        if self.selected:
+            outlinecolor = (255,0, 0)
+        else:
+            outlinecolor = (0,0, 0)
+        pygame.draw.rect(self.screen, outlinecolor, (x, y, cellsize, cellsize), 2)
         if self.value != 0:
             font = pygame.font.SysFont('comicsans', 30)
             text = font.render(str(self.value), True, (0, 255, 0))
