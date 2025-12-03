@@ -468,13 +468,15 @@ if __name__ == "__main__":
     Title = font.render("Welcome to Sudoku", True, (0,0,0))
     board = Board(540, 540, screen, "Easy")
     Title2 = font.render("Select Game Mode:", True, (0,0,0))
+
     running = True
     while running:
         screen.blit(background, (0, 0))
         screen.blit(Title, (65, 20))
         screen.blit(Title2, (65, 250))
-        board.draw()
+
         for event in pygame.event.get():
+            board.draw()
             if event.type == pygame.QUIT:
                 running = False
 
