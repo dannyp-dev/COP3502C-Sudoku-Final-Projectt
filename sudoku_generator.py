@@ -467,6 +467,7 @@ if __name__ == "__main__":
 
     running = True
     while running:
+        board.draw()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -482,8 +483,29 @@ if __name__ == "__main__":
 
                 if 0 <= row < 9 and 0 <= col < 9:
                     board.select(row, col)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    board.place_number(1)
+                if event.key == pygame.K_2:
+                    board.place_number(2)
+                if event.key == pygame.K_3:
+                    board.place_number(3)
+                if event.key == pygame.K_4:
+                    board.place_number(4)
+                if event.key == pygame.K_5:
+                    board.place_number(5)
+                if event.key == pygame.K_6:
+                    board.place_number(6)
+                if event.key == pygame.K_7:
+                    board.place_number(7)
+                if event.key == pygame.K_8:
+                    board.place_number(8)
+                if event.key == pygame.K_9:
+                    board.place_number(9)
+                if event.key == pygame.K_BACKSPACE:
+                    board.clear()
 
-        board.draw()
+
 
         pygame.display.update()
 
