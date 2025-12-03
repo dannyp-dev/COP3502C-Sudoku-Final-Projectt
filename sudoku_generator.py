@@ -13,22 +13,26 @@ class Cell:
         self.screen = screen
         self.sketched_value = 0
         self.selected = False
+
     def set_cell_value(self, value):
         self.value = value
+
     def set_sketched_value(self, value):
         self.sketched_value = value
+
     def draw(self):
         cellsize = 60
         x = self.col * cellsize
         y = self.row * cellsize
+
         if self.selected:
             outlinecolor = (255,0, 0)
         else:
             outlinecolor = (0,0, 0)
-        pygame.draw.rect(self.screen, outlinecolor, (x, y, cellsize, cellsize), 2)
+        pygame.draw.rect(self.screen, outlinecolor, (x, y, cellsize, cellsize), 1)
         if self.value != 0:
             font = pygame.font.SysFont('comicsans', 30)
-            text = font.render(str(self.value), True, (0, 255, 0))
+            text = font.render(str(self.value), True, (0, 0, 0))
             text_rect = text.get_rect(center = (x+cellsize//2, y+cellsize//2))
             self.screen.blit(text, text_rect)
 
@@ -48,24 +52,57 @@ class Board:
         self.height = height
         self.screen = screen
         self.difficulty = difficulty
-        self.selected = False
+        self.square_size = width /9
+
+        removed_cells = 0
+        if self.difficulty == "Easy":
+            removed_cells = 30
+        elif self.difficulty == "Medium":
+            removed_cells = 40
+        elif self.difficulty == "Hard":
+            removed_cells = 50
+
+        self.sudoku_board = generate_sudoku(9, removed_cells)
+
+        self.selected_row = None
+        self.selected_col = None
+
+        #cell(row)(col)
+        for i in range(9):
+            for j in range(9):
+                current_value = self.sudoku_board[i][j]
+                self.sudoku_board[i][j] = Cell(current_value, i, j, screen)
+
+
 
     def draw(self):
         self.screen.fill((255, 255, 255))
         for i in range(0, 10):
             if i % 3 == 0:
-                line_width = 4
+                line_width = 6
             else:
                 line_width = 1
 
             #Horizontal Lines
             pygame.draw.line(self.screen, (0, 0, 0), (0, i * self.square_size), (self.width, i * self.square_size), line_width)
 
-            # Vertical Lines
+            #Vertical Lines
             pygame.draw.line(self.screen, (0, 0, 0), (i * self.square_size, 0), (i * self.square_size, self.height), line_width)
 
+        for i in range(9):
+            for j in range(9):
+                self.sudoku_board[i][j].draw()
+
     def select(self, row, col):
-        pass
+        for i in range(9):
+            for j in range(9):
+                self.sudoku_board[i][j].selected = False
+        self.sudoku_board[row][col].selected = True
+
+        self.selected_row = row
+        self.selected_col = col
+
+
 
 
 class SudokuGenerator:
@@ -88,7 +125,6 @@ class SudokuGenerator:
         self.row_length = row_length
         self.removed_cells = removed_cells
         self.box_length = int(row_length**0.5)
-
         self.board = []
         for i in range(self.row_length):
             row = []
@@ -325,4 +361,32 @@ def generate_sudoku(size, removed):
 
 
 if __name__ == "__main__":
-    print("Working")
+    #Use 540 because someone said so
+    screen = pygame.display.set_mode((540, 540))
+    pygame.display.set_caption("Sudoku Test")
+
+    board = Board(540, 540, screen, "Easy")
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                #Get x and y position of mouse
+                pos = pygame.mouse.get_pos()
+                x, y = pos
+
+                #Convert pixels to row/col
+                row = int(y // 60)
+                col = int(x // 60)
+
+                if 0 <= row < 9 and 0 <= col < 9:
+                    board.select(row, col)
+
+        board.draw()
+
+        pygame.display.update()
+
+    pygame.quit()
