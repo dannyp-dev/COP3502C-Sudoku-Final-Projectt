@@ -448,23 +448,45 @@ def generate_sudoku(size, removed):
     return board, solution
 
 
+
 if __name__ == "__main__":
     #Use 540 because someone said so
     screen = pygame.display.set_mode((540, 540))
     pygame.display.set_caption("Sudoku Test")
+
     background = pygame.image.load("images/menu_bg.png").convert()
     background = pygame.transform.scale(background, (540, 540))
-    font = pygame.font.SysFont(None, 60)
+
+    font = pygame.font.Font(None, 60)
     Title = font.render("Welcome to Sudoku", True, (0,0,0))
     board = Board(540, 540, screen, "Easy")
     Title2 = font.render("Select Game Mode:", True, (0,0,0))
+
+    options_font = pygame.font.Font("images/pixelify_sans.ttf", 45)
+    easy_text = options_font.render("Easy", True, (0,0,0))
+    medium_text = options_font.render("Medium", True, (0,0,0))
+    hard_text = options_font.render("Hard", True, (0,0,0))
     running = True
     while running:
         screen.blit(background, (0, 0))
         screen.blit(Title, (65, 20))
         screen.blit(Title2, (65, 250))
+
+        #These are the menu option rectangles
+        easy_option = pygame.Rect(25, 450, 150, 40)
+        medium_option = pygame.Rect(195, 450, 150, 40)
+        hard_option = pygame.Rect(365, 450, 150, 40)
+
+        #drawing said rectangles
+        pygame.draw.rect(screen, (255, 165, 0), easy_option)
+        pygame.draw.rect(screen, (255, 165, 0), medium_option)
+        pygame.draw.rect(screen, (255, 165, 0), hard_option)
+
+        #making text for easy medium and hard
+        screen.blit(easy_text, easy_text.get_rect(center=easy_option.center))
+        screen.blit(medium_text, medium_text.get_rect(center=medium_option.center))
+        screen.blit(hard_text, hard_text.get_rect(center=hard_option.center))
         for event in pygame.event.get():
-            board.draw()
             if event.type == pygame.QUIT:
                 running = False
 
