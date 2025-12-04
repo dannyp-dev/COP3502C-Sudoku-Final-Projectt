@@ -458,6 +458,8 @@ if __name__ == "__main__":
     #Set up screen
     screen = pygame.display.set_mode((540, 600))
     pygame.display.set_caption("Sudoku")
+
+    #Load images
     background = pygame.image.load("images/menu_bg.png").convert()
     background = pygame.transform.scale(background, (540, 540))
 
@@ -498,41 +500,43 @@ if __name__ == "__main__":
     medium_text = options_font.render("Medium", True, (0,0,0))
     hard_text = options_font.render("Hard", True, (0,0,0))
 
+    #Menu Rectangles
+    easy_option = pygame.Rect(25, 450, 150, 40)
+    medium_option = pygame.Rect(195, 450, 150, 40)
+    hard_option = pygame.Rect(365, 450, 150, 40)
+
+    #Exit / Restart
     end_exit_rect = exit_surface.get_rect(center=(540 // 2, 540 // 2 + 50))
     end_restart_rect = restart_surface.get_rect(center=(540 // 2, 540 // 2 + 50))
 
+    #Titles
     Title = font.render("Welcome to Sudoku", True, (0,0,0))
-    board = Board(540, 540, screen, "Easy")
-    Title2 = font.render("Select Game Mode:", True, (0,0,0))
+    Title2 = font.render("Select Game Mode:", True, (0, 0, 0))
+
+    game_state = "start"
+    board = None
     running = True
 
     while running:
-        screen.blit(background, (0, 0))
-        screen.blit(Title, (65, 20))
-        screen.blit(Title2, (65, 250))
-
-        #These are the menu option rectangles
-        easy_option = pygame.Rect(25, 450, 150, 40)
-        medium_option = pygame.Rect(195, 450, 150, 40)
-        hard_option = pygame.Rect(365, 450, 150, 40)
-
-        #drawing said rectangles
-        pygame.draw.rect(screen, (255, 165, 0), easy_option)
-        pygame.draw.rect(screen, (255, 165, 0), medium_option)
-        pygame.draw.rect(screen, (255, 165, 0), hard_option)
-
-        #making text for easy medium and hard
-        screen.blit(easy_text, easy_text.get_rect(center=easy_option.center))
-        screen.blit(medium_text, medium_text.get_rect(center=medium_option.center))
-        screen.blit(hard_text, hard_text.get_rect(center=hard_option.center))
-        board.draw()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if game_state == "game":
-                    x, y = event.pos
+                x, y = event.pos
+
+                if game_state == "start":
+                    if easy_option.collidepoint(x, y):
+                        board = Board(540, 540, screen, "Easy")
+                        game_state = "game"
+                    elif medium_option.collidepoint(x, y):
+                        board = Board(540, 540, screen, "Medium")
+                        game_state = "game"
+                    elif hard_option.collidepoint(x, y):
+                        board = Board(540, 540, screen, "Hard")
+                        game_state = "game"
+
+                elif game_state == "game":
                     if y < 540:
                         row = int(y // 60)
                         col = int(x // 60)
@@ -542,8 +546,7 @@ if __name__ == "__main__":
                         if reset_rect.collidepoint(x, y):
                             board.reset_to_original()
                         elif restart_rect.collidepoint(x, y):
-                            board = Board(540, 540, screen, "Easy")
-                            game_state = "game"
+                            game_state = "start"
                         elif exit_rect.collidepoint(x, y):
                             running = False
 
@@ -553,8 +556,7 @@ if __name__ == "__main__":
 
                 elif game_state == "lost":
                     if end_restart_rect.collidepoint(event.pos):
-                        board = Board(540, 540, screen, "Easy")
-                        game_state = "game"
+                        game_state = "start"
 
             if event.type == pygame.KEYDOWN and game_state == "game":
                 if event.key == pygame.K_1:
@@ -586,8 +588,21 @@ if __name__ == "__main__":
 
         screen.fill((255, 255, 255))
 
+        if game_state == "start":
+            if background:
+                screen.blit(background, (0, 0))
+            screen.blit(Title, (65, 20))
+            screen.blit(Title2, (65, 250))
 
-        if game_state == "game":
+            pygame.draw.rect(screen, (255, 165, 0), easy_option)
+            pygame.draw.rect(screen, (255, 165, 0), medium_option)
+            pygame.draw.rect(screen, (255, 165, 0), hard_option)
+
+            screen.blit(easy_text, easy_text.get_rect(center=easy_option.center))
+            screen.blit(medium_text, medium_text.get_rect(center=medium_option.center))
+            screen.blit(hard_text, hard_text.get_rect(center=hard_option.center))
+
+        elif game_state == "game":
             board.draw()
             screen.blit(reset_surface, reset_rect)
             screen.blit(restart_surface, restart_rect)
