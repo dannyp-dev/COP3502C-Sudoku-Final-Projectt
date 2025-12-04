@@ -450,31 +450,62 @@ def generate_sudoku(size, removed):
         for num in row:
             row_copy.append(num)
         solution.append(row_copy)
-    board = sudoku.get_board()
     sudoku.remove_cells()
     board = sudoku.get_board()
     return board, solution
 
-
-
 if __name__ == "__main__":
-    #Use 540 because someone said so
-    screen = pygame.display.set_mode((540, 540))
-    pygame.display.set_caption("Sudoku Test")
-
+    #Set up screen
+    screen = pygame.display.set_mode((540, 600))
+    pygame.display.set_caption("Sudoku")
     background = pygame.image.load("images/menu_bg.png").convert()
     background = pygame.transform.scale(background, (540, 540))
 
+    #Fonts
     font = pygame.font.Font(None, 60)
-    Title = font.render("Welcome to Sudoku", True, (0,0,0))
-    board = Board(540, 540, screen, "Easy")
-    Title2 = font.render("Select Game Mode:", True, (0,0,0))
-
+    button_font = pygame.font.SysFont(None, 40)
     options_font = pygame.font.Font("images/pixelify_sans.ttf", 45)
+
+    #Win or Loss Text
+    win_text = font.render("You Won!", True, (0, 0, 0))  # Changed to black for visibility
+    lose_text = font.render("You Lose!", True, (0, 0, 0))
+
+    #Reset Button
+    reset_text = button_font.render("Reset", True, (255, 255, 255))
+    reset_surface = pygame.Surface((reset_text.get_size()[0] + 20, reset_text.get_size()[1] + 20))
+    reset_surface.fill((255, 165, 0))
+    reset_surface.blit(reset_text, (10, 10))
+    reset_rect = reset_surface.get_rect(center=(540 // 4, 570))
+
+    #Restart Button
+    restart_text = button_font.render("Restart", True, (255, 255, 255))
+    restart_surface = pygame.Surface((restart_text.get_size()[0] + 20, restart_text.get_size()[1] + 20))
+    restart_surface.fill((255, 165, 0))
+    restart_surface.blit(restart_text, (10, 10))
+    restart_rect = restart_surface.get_rect(center=(540 // 2, 570))
+
+    #Exit Button
+    exit_text = button_font.render("Exit", True, (255, 255, 255))
+    exit_surface = pygame.Surface((exit_text.get_size()[0] + 20, exit_text.get_size()[1] + 20))
+    exit_surface.fill((255, 165, 0))
+    exit_surface.blit(exit_text, (10, 10))
+    exit_rect = exit_surface.get_rect(center=(540 // 4 * 3, 570))
+
+    #Win / Loss Text
+    won_text = font.render("You Won!", True, (0, 0, 0))
+    lost_text = font.render("You Lost!", True, (0, 0, 0))
     easy_text = options_font.render("Easy", True, (0,0,0))
     medium_text = options_font.render("Medium", True, (0,0,0))
     hard_text = options_font.render("Hard", True, (0,0,0))
+
+    end_exit_rect = exit_surface.get_rect(center=(540 // 2, 540 // 2 + 50))
+    end_restart_rect = restart_surface.get_rect(center=(540 // 2, 540 // 2 + 50))
+
+    Title = font.render("Welcome to Sudoku", True, (0,0,0))
+    board = Board(540, 540, screen, "Easy")
+    Title2 = font.render("Select Game Mode:", True, (0,0,0))
     running = True
+
     while running:
         screen.blit(background, (0, 0))
         screen.blit(Title, (65, 20))
@@ -500,44 +531,76 @@ if __name__ == "__main__":
                 running = False
 
             if event.type == pygame.MOUSEBUTTONDOWN:
+                if game_state == "game":
+                    x, y = event.pos
+                    if y < 540:
+                        row = int(y // 60)
+                        col = int(x // 60)
+                        if 0 <= row < 9 and 0 <= col < 9:
+                            board.select(row, col)
+                    else:
+                        if reset_rect.collidepoint(x, y):
+                            board.reset_to_original()
+                        elif restart_rect.collidepoint(x, y):
+                            board = Board(540, 540, screen, "Easy")
+                            game_state = "game"
+                        elif exit_rect.collidepoint(x, y):
+                            running = False
 
-                pos = pygame.mouse.get_pos()
-                x, y = pos
+                elif game_state == "won":
+                    if end_exit_rect.collidepoint(event.pos):
+                        running = False
 
+                elif game_state == "lost":
+                    if end_restart_rect.collidepoint(event.pos):
+                        board = Board(540, 540, screen, "Easy")
+                        game_state = "game"
 
-                row = int(y // 60)
-                col = int(x // 60)
-
-                if 0 <= row < 9 and 0 <= col < 9:
-                    board.select(row, col)
-                    board.draw()
-            if event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN and game_state == "game":
                 if event.key == pygame.K_1:
-                    board.sketch(1)
+                    board.place_number(1)
                 if event.key == pygame.K_2:
-                    board.sketch(2)
+                    board.place_number(2)
                 if event.key == pygame.K_3:
-                    board.sketch(3)
+                    board.place_number(3)
                 if event.key == pygame.K_4:
-                    board.sketch(4)
+                    board.place_number(4)
                 if event.key == pygame.K_5:
-                    board.sketch(5)
+                    board.place_number(5)
                 if event.key == pygame.K_6:
-                    board.sketch(6)
+                    board.place_number(6)
                 if event.key == pygame.K_7:
-                    board.sketch(7)
+                    board.place_number(7)
                 if event.key == pygame.K_8:
-                    board.sketch(8)
+                    board.place_number(8)
                 if event.key == pygame.K_9:
-                    board.sketch(9)
+                    board.place_number(9)
                 if event.key == pygame.K_BACKSPACE:
                     board.clear()
-                if event.key == pygame.K_RETURN:
-                    if board.selected_row is not None and board.selected_col is not None:
-                        cell = board.sudoku_board[board.selected_row][board.selected_col]
-                        if cell.changeable and cell.sketched_value != 0:
-                            board.place_number(cell.sketched_value)
-                            cell.changeable = False
+
+                if board.is_full():
+                    if board.check_board():
+                        game_state = "won"
+                    else:
+                        game_state = "lost"
+
+        screen.fill((255, 255, 255))
+
+
+        if game_state == "game":
+            board.draw()
+            screen.blit(reset_surface, reset_rect)
+            screen.blit(restart_surface, restart_rect)
+            screen.blit(exit_surface, exit_rect)
+
+        elif game_state == "won":
+            screen.blit(won_text, (540 // 2 - won_text.get_width() // 2, 200))
+            screen.blit(exit_surface, end_exit_rect)
+
+        elif game_state == "lost":
+            screen.blit(lost_text, (540 // 2 - lost_text.get_width() // 2, 200))
+            screen.blit(restart_surface, end_restart_rect)
 
         pygame.display.update()
+
     pygame.quit()
