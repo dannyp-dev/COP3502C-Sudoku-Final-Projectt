@@ -579,6 +579,19 @@ if __name__ == "__main__":
                     board.sketch(9)
                 if event.key == pygame.K_BACKSPACE:
                     board.clear()
+                if event.key == pygame.K_DOWN:
+                    row, col = row+1, col
+                    board.select(row, col)
+                if event.key == pygame.K_UP:
+                    row, col = row-1, col
+                    board.select(row, col)
+                if event.key == pygame.K_LEFT:
+                    row, col = row, col-1
+                    board.select(row, col)
+                if event.key == pygame.K_RIGHT:
+                    row, col = row, col+1
+                    board.select(row, col)
+
                 if event.key == pygame.K_RETURN:
                     if board.selected_row is not None and board.selected_col is not None:
                         cell = board.sudoku_board[board.selected_row][board.selected_col]
