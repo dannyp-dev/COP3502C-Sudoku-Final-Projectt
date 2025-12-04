@@ -3,6 +3,9 @@ import random
 import pygame
 pygame.init()
 
+"""
+Represents a single cell on the board.
+"""
 
 
 class Cell:
@@ -17,6 +20,7 @@ class Cell:
             self.changeable = True
         else:
             self.changeable = False
+
 
     def set_cell_value(self, value):
         self.value = value
@@ -52,7 +56,6 @@ This was adapted from a GeeksforGeeks article "Program for Sudoku Generator" by 
 https://www.geeksforgeeks.org/program-sudoku-generator/
 
 """
-
 
 class Board:
     def __init__(self, width, height, screen, difficulty):
@@ -232,9 +235,16 @@ class SudokuGenerator:
 	Return: None
     '''
 
+
+
+
     def print_board(self):
-        for row in self.board:
-            print(row)
+        for row in self.board:print(row)
+
+
+
+
+
 
     '''
 	Determines if num is contained in the specified row (horizontal) of the board
