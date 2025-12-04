@@ -579,17 +579,26 @@ if __name__ == "__main__":
                     board.sketch(9)
                 if event.key == pygame.K_BACKSPACE:
                     board.clear()
+
                 if event.key == pygame.K_DOWN:
                     row, col = row+1, col
+                    if row < 0 or row >= 9 or col < 0 or col >= 9:
+                        row, col = row-1, col
                     board.select(row, col)
                 if event.key == pygame.K_UP:
                     row, col = row-1, col
+                    if row < 0 or row >= 9 or col < 0 or col >= 9:
+                        row, col = row+1, col
                     board.select(row, col)
                 if event.key == pygame.K_LEFT:
                     row, col = row, col-1
+                    if row < 0 or row >= 9 or col < 0 or col >= 9:
+                        row, col = row, col+1
                     board.select(row, col)
                 if event.key == pygame.K_RIGHT:
                     row, col = row, col+1
+                    if row < 0 or row >= 9 or col < 0 or col >= 9:
+                        row, col = row, col-1
                     board.select(row, col)
 
                 if event.key == pygame.K_RETURN:
