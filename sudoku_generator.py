@@ -39,6 +39,12 @@ class Cell:
             text = font.render(str(self.value), True, (0, 0, 0))
             text_rect = text.get_rect(center = (x+cellsize//2, y+cellsize//2))
             self.screen.blit(text, text_rect)
+        elif self.sketched_value != 0:
+            font = pygame.font.SysFont('comicsans', 30)
+            text = font.render(str(self.sketched_value), True, (150, 150, 150))
+            text_rect = text.get_rect(center = (x+cellsize//2, y+cellsize//2))
+            self.screen.blit(text, text_rect)
+
 
 
 """
@@ -134,13 +140,15 @@ class Board:
     def sketch(self, value):
         if self.selected_row is not None and self.selected_col is not None:
             cell = self.sudoku_board[self.selected_row][self.selected_col]
-            cell.sketched_value = value
+            if cell.changeable:
+                cell.set_sketched_value(value)
 
     def place_number(self, value):
         if self.selected_row is not None and self.selected_col is not None:
             cell = self.sudoku_board[self.selected_row][self.selected_col]
-            cell.set_cell_value(value)
-            cell.set_sketched_value(value)
+            if cell.changeable:
+                cell.set_cell_value(value)
+                cell.set_sketched_value(0)
 
     def reset_to_original(self):
         for i in range(9):
@@ -486,16 +494,17 @@ if __name__ == "__main__":
         screen.blit(easy_text, easy_text.get_rect(center=easy_option.center))
         screen.blit(medium_text, medium_text.get_rect(center=medium_option.center))
         screen.blit(hard_text, hard_text.get_rect(center=hard_option.center))
+        board.draw()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                #Get x and y position of mouse
+
                 pos = pygame.mouse.get_pos()
                 x, y = pos
 
-                #Convert pixels to row/col
+
                 row = int(y // 60)
                 col = int(x // 60)
 
@@ -504,24 +513,31 @@ if __name__ == "__main__":
                     board.draw()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
-                    board.place_number(1)
+                    board.sketch(1)
                 if event.key == pygame.K_2:
-                    board.place_number(2)
+                    board.sketch(2)
                 if event.key == pygame.K_3:
-                    board.place_number(3)
+                    board.sketch(3)
                 if event.key == pygame.K_4:
-                    board.place_number(4)
+                    board.sketch(4)
                 if event.key == pygame.K_5:
-                    board.place_number(5)
+                    board.sketch(5)
                 if event.key == pygame.K_6:
-                    board.place_number(6)
+                    board.sketch(6)
                 if event.key == pygame.K_7:
-                    board.place_number(7)
+                    board.sketch(7)
                 if event.key == pygame.K_8:
-                    board.place_number(8)
+                    board.sketch(8)
                 if event.key == pygame.K_9:
-                    board.place_number(9)
+                    board.sketch(9)
                 if event.key == pygame.K_BACKSPACE:
                     board.clear()
+                if event.key == pygame.K_RETURN:
+                    if board.selected_row is not None and board.selected_col is not None:
+                        cell = board.sudoku_board[board.selected_row][board.selected_col]
+                        if cell.changeable and cell.sketched_value != 0:
+                            board.place_number(cell.sketched_value)
+                            cell.changeable = False
+
         pygame.display.update()
     pygame.quit()
