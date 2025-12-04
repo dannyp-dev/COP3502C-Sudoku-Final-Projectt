@@ -584,7 +584,6 @@ if __name__ == "__main__":
                         cell = board.sudoku_board[board.selected_row][board.selected_col]
                         if cell.changeable and cell.sketched_value != 0:
                             board.place_number(cell.sketched_value)
-                            cell.changeable = False
 
                 if board.is_full():
                     if board.check_board():
