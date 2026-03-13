@@ -358,8 +358,6 @@ class SudokuGenerator:
             self.fill_box(i, i)
 
     '''
-    DO NOT CHANGE
-    Provided for students
     Fills the remaining cells of the board
     Should be called after the diagonal boxes have been filled
 
